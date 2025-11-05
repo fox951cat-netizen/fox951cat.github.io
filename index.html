@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>เว็บคำนวณ CPR – Standalone HTML (v9)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>.badge{display:inline-block;border-radius:.5rem;padding:.25rem .75rem;font-weight:600}</style>
+</head>
+<body class="min-h-screen bg-gray-100 p-6">
+  <div class="max-w-5xl mx-auto flex flex-col gap-6">
+    <header class="flex items-center justify-between">
+      <h1 class="text-2xl sm:text-3xl font-bold">เว็บคำนวณ CPR</h1>
+      <div class="flex gap-2">
+        <button id="btnCalc" class="px-3 py-1.5 rounded-lg border bg-black text-white">คำนวณ</button>
+        <button id="btnHistory" class="px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">ประวัติ</button>
+      </div>
+    </header>
+
+    <!-- ===== CALC VIEW ===== -->
+    <div id="viewCalc" class="flex flex-col gap-6">
+      <!-- WEEK -->
+      <section class="rounded-2xl shadow p-6 bg-white border border-gray-100">
+        <h2 class="text-xl font-semibold mb-4">CPR WEEK</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <label class="flex flex-col gap-2"><span class="text-sm text-gray-600">High</span>
+            <input id="weekH" type="text" inputmode="decimal" placeholder="1234.56" class="px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/10" />
+          </label>
+          <label class="flex flex-col gap-2"><span class="text-sm text-gray-600">Low</span>
+            <input id="weekL" type="text" inputmode="decimal" placeholder="1200.10" class="px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/10" />
+          </label>
+          <label class="flex flex-col gap-2"><span class="text-sm text-gray-600">Close</span>
+            <input id="weekC" type="text" inputmode="decimal" placeholder="1215.33" class="px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/10" />
+          </label>
+        </div>
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100"><div class="text-sm text-gray-500">P</div><div id="weekP" class="text-2xl font-semibold">-</div></div>
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100"><div class="text-sm text-gray-500">BC</div><div id="weekBC" class="text-2xl font-semibold">-</div></div>
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100"><div class="text-sm text-gray-500">TC</div><div id="weekTC" class="text-2xl font-semibold">-</div></div>
+          <div id="weekWidthCard" class="rounded-xl p-4 border bg-gray-50 border-gray-100">
+            <div class="text-sm text-gray-500">Width CPR</div>
+            <div id="weekWidthBadge" class="text-2xl font-semibold badge bg-gray-200 text-gray-700">-</div>
+            <div class="text-xs text-gray-500 mt-1">สีเขียว: &gt; 2000 | สีแดง: &le; 2000</div>
+          </div>
+        </div>
+        <!-- WEEK: Split columns L(3-6) / H(3-6) -->
+        <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100">
+            <div class="text-sm text-gray-500 mb-1">L (L3–L6)</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div><div class="text-xs text-gray-500">L3</div><div id="weekL3" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">L4</div><div id="weekL4" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">L5</div><div id="weekL5" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">L6</div><div id="weekL6" class="text-xl font-semibold">-</div></div>
+            </div>
+          </div>
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100">
+            <div class="text-sm text-gray-500 mb-1">H (H3–H6)</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div><div class="text-xs text-gray-500">H3</div><div id="weekH3" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">H4</div><div id="weekH4" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">H5</div><div id="weekH5" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">H6</div><div id="weekH6" class="text-xl font-semibold">-</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 -mt-2 mb-2"><button id="saveWeek" class="px-3 py-2 rounded-xl bg-black text-white shadow">บันทึก WEEK ไปประวัติ</button></div>
+      </section>
+
+      <!-- DAY -->
+      <section class="rounded-2xl shadow p-6 bg-white border border-gray-100">
+        <h2 class="text-xl font-semibold mb-4">CPR DAY</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <label class="flex flex-col gap-2"><span class="text-sm text-gray-600">High</span>
+            <input id="dayH" type="text" inputmode="decimal" placeholder="1234.56" class="px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/10" />
+          </label>
+          <label class="flex flex-col gap-2"><span class="text-sm text-gray-600">Low</span>
+            <input id="dayL" type="text" inputmode="decimal" placeholder="1200.10" class="px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/10" />
+          </label>
+          <label class="flex flex-col gap-2"><span class="text-sm text-gray-600">Close</span>
+            <input id="dayC" type="text" inputmode="decimal" placeholder="1215.33" class="px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/10" />
+          </label>
+        </div>
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100"><div class="text-sm text-gray-500">P</div><div id="dayP" class="text-2xl font-semibold">-</div></div>
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100"><div class="text-sm text-gray-500">BC</div><div id="dayBC" class="text-2xl font-semibold">-</div></div>
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100"><div class="text-sm text-gray-500">TC</div><div id="dayTC" class="text-2xl font-semibold">-</div></div>
+          <div id="dayWidthCard" class="rounded-xl p-4 border bg-gray-50 border-gray-100">
+            <div class="text-sm text-gray-500">Width CPR</div>
+            <div id="dayWidthBadge" class="text-2xl font-semibold badge bg-gray-200 text-gray-700">-</div>
+            <div class="text-xs text-gray-500 mt-1">สีเขียว: &gt; 2000 | สีแดง: &le; 2000</div>
+          </div>
+        </div>
+        <!-- DAY: Split columns L(3-6) / H(3-6) -->
+        <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100">
+            <div class="text-sm text-gray-500 mb-1">L (L3–L6)</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div><div class="text-xs text-gray-500">L3</div><div id="dayL3" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">L4</div><div id="dayL4" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">L5</div><div id="dayL5" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">L6</div><div id="dayL6" class="text-xl font-semibold">-</div></div>
+            </div>
+          </div>
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100">
+            <div class="text-sm text-gray-500 mb-1">H (H3–H6)</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div><div class="text-xs text-gray-500">H3</div><div id="dayH3" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">H4</div><div id="dayH4" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">H5</div><div id="dayH5" class="text-xl font-semibold">-</div></div>
+              <div><div class="text-xs text-gray-500">H6</div><div id="dayH6" class="text-xl font-semibold">-</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 -mt-2"><button id="saveDay" class="px-3 py-2 rounded-xl bg-black text-white shadow">บันทึก DAY ไปประวัติ</button></div>
+      </section>
+
+      <!-- TODAY -->
+      <section class="rounded-2xl shadow p-6 bg-white border border-gray-100">
+        <h2 class="text-xl font-semibold mb-4">Today</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <label class="flex flex-col gap-2"><span class="text-sm text-gray-600">Open Today</span>
+            <input id="todayOpen" type="text" inputmode="decimal" placeholder="1208.00" class="px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/10" />
+          </label>
+        </div>
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100"><div class="text-sm text-gray-500">Bias Week</div><div id="biasWeekBadge" class="text-xl font-semibold inline-block rounded-lg px-3 py-1 bg-gray-200 text-gray-700">-</div></div>
+          <div class="rounded-xl p-4 bg-gray-50 border border-gray-100"><div class="text-sm text-gray-500">Bias Today</div><div id="biasTodayBadge" class="text-xl font-semibold inline-block rounded-lg px-3 py-1 bg-gray-200 text-gray-700">-</div></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== HISTORY VIEW ===== -->
+    <div id="viewHistory" class="hidden">
+      <section class="rounded-2xl shadow p-6 bg-white border border-gray-100">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold">ประวัติการคำนวณ</h2>
+          <div class="flex gap-2">
+            <button id="exportExcel" class="px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">ส่งออกไฟล์ Excel</button>
+            <button id="clearHistory" class="px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">ล้างประวัติทั้งหมด</button>
+          </div>
+        </div>
+        <div id="historyEmpty" class="text-gray-500 text-sm">ยังไม่มีรายการบันทึก กดปุ่ม "บันทึก" หลังคำนวณเพื่อเก็บผลไว้ที่นี่</div>
+        <div class="overflow-x-auto hidden" id="historyTableWrap">
+          <table class="w-full text-sm" id="historyTable">
+            <thead>
+              <tr class="text-left text-gray-500">
+                <th class="py-2">เวลา</th>
+                <th class="py-2">ช่วง</th>
+                <th class="py-2">High</th>
+                <th class="py-2">Low</th>
+                <th class="py-2">Close</th>
+                <th class="py-2">Open</th>
+                <th class="py-2">P</th>
+                <th class="py-2">BC</th>
+                <th class="py-2">TC</th>
+                <th class="py-2">Width</th>
+                <th class="py-2">Bias</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+        <a id="downloadAnchor" class="hidden" aria-hidden="true">download</a>
+      </section>
+    </div>
+
+    <footer class="text-xs text-gray-500 text-center mt-2">* ทุกผลลัพธ์ตัดทศนิยม 2 ตำแหน่ง (ไม่ปัด) • Width ใช้ |TC(trunc2) − BC(trunc2)| × 100 และใช้ค่าสัมบูรณ์ • Bias เทียบ Open Today กับ P/BC/TC ของ CPR DAY (sideway = รวมขอบ)</footer>
+  </div>
+
+  <script>
+    var DECIMAL_EXACT_2 = /^-?\d+\.\d{2}$/;
+    function sanitizeDecimal(text){ if(text==null) return ''; var v=String(text); v=v.replace(/,/g,'.'); v=v.replace(/[^0-9.\-]/g,''); v=v.replace(/(?!^)-/g,''); if(v.length>0 && v[0] !== '-') v=v.replace(/-/g,''); var i=v.indexOf('.'); if(i!==-1){ var b=v.slice(0,i+1); var a=v.slice(i+1).replace(/\./g,''); a=a.slice(0,2); v=b+a;} return v; }
+    function trunc2(val){ if(val===null||val===undefined||isNaN(val)) return null; var s=val<0?-1:1; var a=Math.abs(val); var sc=Math.floor(a*100+1e-8)/100; return s*sc; }
+    function fmt2(val){ return val===null?'-':trunc2(val).toFixed(2); }
+
+    function computeRaw(H,L,C){ if(H===''||L===''||C==='') return null; var h=Number(H), l=Number(L), c=Number(C); if(isNaN(h)||isNaN(l)||isNaN(c)) return null; var P=(h+l+c)/3; var BC=(h+l)/2; var TC=2*P-BC; return {P:P,BC:BC,TC:TC}; }
+    function computeDisplay(H,L,C){ var r=computeRaw(H,L,C); if(!r) return null; var P=trunc2(r.P), BC=trunc2(r.BC), TC=trunc2(r.TC); var width=Math.abs(TC-BC)*100; var h=Number(H), l=Number(L), c=Number(C); var range=h-l; var L3=trunc2((range*0.275)-c); var L4=trunc2((range*0.55)-c); var L5=trunc2((range*1.0)-c); var L6=trunc2((range*2.0)-c); var H3=trunc2((range*0.275)+c); var H4=trunc2((range*0.55)+c); var H5=trunc2((range*1.0)+c); var H6=trunc2((range*2.0)+c); return {P:P,BC:BC,TC:TC,width:width,L3:L3,L4:L4,L5:L5,L6:L6,H3:H3,H4:H4,H5:H5,H6:H6}; }
+
+    function q(id){return document.getElementById(id);} 
+    function setBadge(badge,card,value){ if(value==null){ badge.textContent='-'; badge.className='text-2xl font-semibold badge bg-gray-200 text-gray-700'; card.className='rounded-xl p-4 border bg-gray-50 border-gray-100'; return;} var shown=fmt2(value); badge.textContent=shown; var green=value>2000; badge.className='text-2xl font-semibold badge '+(green?'bg-green-100 text-green-800':'bg-red-100 text-red-800'); card.className='rounded-xl p-4 border '+(green?'border-green-800 bg-green-50':'border-red-800 bg-red-50'); }
+
+    function switchView(which){ var calc=q('viewCalc'), hist=q('viewHistory'), btnCalc=q('btnCalc'), btnHist=q('btnHistory'); if(which==='calc'){ calc.classList.remove('hidden'); hist.classList.add('hidden'); btnCalc.className='px-3 py-1.5 rounded-lg border bg-black text-white'; btnHist.className='px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50'; } else { hist.classList.remove('hidden'); calc.classList.add('hidden'); btnHist.className='px-3 py-1.5 rounded-lg border bg-black text-white'; btnCalc.className='px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50'; } }
+
+    function attachNumericInput(el,onComplete){ el.addEventListener('input',function(){ var before=el.value; el.value=sanitizeDecimal(el.value); if(DECIMAL_EXACT_2.test(el.value)){ onComplete&&onComplete(); } if(before!==el.value){} refresh(); }); el.addEventListener('keydown',function(e){ if(e.key==='Enter'){ onComplete&&onComplete(); }}); el.addEventListener('blur',function(){ var v=el.value; if(/^ -?\d+$/.test(v)) el.value=v+'.00'; else if(/^-?\d+\.\d$/.test(v)) el.value=v+'0'; refresh(); }); }
+
+    function refresh(){
+      var wH=q('weekH').value, wL=q('weekL').value, wC=q('weekC').value;
+      var dH=q('dayH').value,  dL=q('dayL').value,  dC=q('dayC').value;
+      var oT=q('todayOpen').value;
+
+      var w=computeDisplay(wH,wL,wC);
+      q('weekP').textContent=fmt2(w? w.P:null); q('weekBC').textContent=fmt2(w? w.BC:null); q('weekTC').textContent=fmt2(w? w.TC:null); setBadge(q('weekWidthBadge'),q('weekWidthCard'), w? w.width:null);
+      q('weekL3').textContent=fmt2(w? w.L3:null); q('weekL4').textContent=fmt2(w? w.L4:null); var wl5=q('weekL5'), wl6=q('weekL6'); if(wl5) wl5.textContent=fmt2(w? w.L5:null); if(wl6) wl6.textContent=fmt2(w? w.L6:null);
+      q('weekH3').textContent=fmt2(w? w.H3:null); q('weekH4').textContent=fmt2(w? w.H4:null); var wh5=q('weekH5'), wh6=q('weekH6'); if(wh5) wh5.textContent=fmt2(w? w.H5:null); if(wh6) wh6.textContent=fmt2(w? w.H6:null);
+
+      var d=computeDisplay(dH,dL,dC);
+      q('dayP').textContent=fmt2(d? d.P:null); q('dayBC').textContent=fmt2(d? d.BC:null); q('dayTC').textContent=fmt2(d? d.TC:null); setBadge(q('dayWidthBadge'),q('dayWidthCard'), d? d.width:null);
+      q('dayL3').textContent=fmt2(d? d.L3:null); q('dayL4').textContent=fmt2(d? d.L4:null); var dl5=q('dayL5'), dl6=q('dayL6'); if(dl5) dl5.textContent=fmt2(d? d.L5:null); if(dl6) dl6.textContent=fmt2(d? d.L6:null);
+      q('dayH3').textContent=fmt2(d? d.H3:null); q('dayH4').textContent=fmt2(d? d.H4:null); var dh5=q('dayH5'), dh6=q('dayH6'); if(dh5) dh5.textContent=fmt2(d? d.H5:null); if(dh6) dh6.textContent=fmt2(d? d.H6:null);
+
+      // Bias Today
+      var biasTodayEl=q('biasTodayBadge');
+      if(!d || d.P==null || d.BC==null || d.TC==null || !DECIMAL_EXACT_2.test(oT||'')){
+        biasTodayEl.textContent='-'; biasTodayEl.className='text-xl font-semibold inline-block rounded-lg px-3 py-1 bg-gray-200 text-gray-700';
+      }else{
+        var openVal=trunc2(Number(oT));
+        var allGreater=openVal>d.P && openVal>d.BC && openVal>d.TC;
+        var allLess=openVal<d.P && openVal<d.BC && openVal<d.TC;
+        var minV=Math.min(d.P,d.BC,d.TC), maxV=Math.max(d.P,d.BC,d.TC);
+        var inRange=openVal>=minV && openVal<=maxV;
+        if(allGreater){ biasTodayEl.textContent='buy'; biasTodayEl.className='text-xl font-semibold inline-block rounded-lg px-3 py-1 bg-green-100 text-green-800'; }
+        else if(allLess){ biasTodayEl.textContent='sell'; biasTodayEl.className='text-xl font-semibold inline-block rounded-lg px-3 py-1 bg-red-100 text-red-800'; }
+        else if(inRange){ biasTodayEl.textContent='sideway'; biasTodayEl.className='text-xl font-semibold inline-block rounded-lg px-3 py-1 bg-yellow-100 text-yellow-800'; }
+        else { biasTodayEl.textContent='sideway'; biasTodayEl.className='text-xl font-semibold inline-block rounded-lg px-3 py-1 bg-yellow-100 text-yellow-800'; }
+      }
+      // Bias Week (Open vs BC of WEEK)
+      var biasWeekEl=q('biasWeekBadge');
+      if(!w || w.BC==null || !DECIMAL_EXACT_2.test(oT||'')){
+        biasWeekEl.textContent='-'; biasWeekEl.className='text-xl font-semibold inline-block rounded-lg px-3 py-1 bg-gray-200 text-gray-700';
+      }else{ var openValW=trunc2(Number(oT)); if(openValW>w.BC){ biasWeekEl.textContent='buy'; biasWeekEl.className='text-xl font-semibold inline-block rounded-lg px-3 py-1 bg-green-100 text-green-800'; } else if(openValW<w.BC){ biasWeekEl.textContent='sell'; biasWeekEl.className='text-xl font-semibold inline-block rounded-lg px-3 py-1 bg-red-100 text-red-800'; } else { biasWeekEl.textContent='sideway'; biasWeekEl.className='text-xl font-semibold inline-block rounded-lg px-3 py-1 bg-yellow-100 text-yellow-800'; } }
+    }
+
+    function loadHistory(){ try{return JSON.parse(localStorage.getItem('cpr_history')||'[]');}catch(e){return [];} }
+    function saveHistory(arr){ localStorage.setItem('cpr_history', JSON.stringify(arr)); }
+
+    function computeBiasForHist(h){ try{ var O=h&&h.input?Number(h.input.O):NaN; if(!isFinite(O)) return null; var ov=trunc2(O); if(h.label==='WEEK'){ var bcw=h.result&&h.result.BC!=null?Number(h.result.BC):NaN; if(!isFinite(bcw)) return null; if(ov>bcw) return {text:'buy',bg:'#dcfce7',fg:'#166534',cls:'bg-green-100 text-green-800'}; if(ov<bcw) return {text:'sell',bg:'#fee2e2',fg:'#991b1b',cls:'bg-red-100 text-red-800'}; return {text:'sideway',bg:'#fef9c3',fg:'#854d0e',cls:'bg-yellow-100 text-yellow-800'}; } else { var P=h.result&&h.result.P, BC=h.result&&h.result.BC, TC=h.result&&h.result.TC; if(P==null||BC==null||TC==null) return null; if(ov>P&&ov>BC&&ov>TC) return {text:'buy',bg:'#dcfce7',fg:'#166534',cls:'bg-green-100 text-green-800'}; if(ov<P&&ov<BC&&ov<TC) return {text:'sell',bg:'#fee2e2',fg:'#991b1b',cls:'bg-red-100 text-red-800'}; return {text:'sideway',bg:'#fef9c3',fg:'#854d0e',cls:'bg-yellow-100 text-yellow-800'}; } }catch(e){ return null; } }
+
+    function renderHistory(){
+      var hist=loadHistory(); var empty=q('historyEmpty'), wrap=q('historyTableWrap'), body=q('historyBody'); body.innerHTML='';
+      if(!hist.length){ empty.classList.remove('hidden'); wrap.classList.add('hidden'); return; }
+      empty.classList.add('hidden'); wrap.classList.remove('hidden');
+      hist.forEach(function(h){
+        var when=new Date(h.at).toLocaleString(); var isWeek=h.label==='WEEK'; var bias=computeBiasForHist(h); var biasCell=bias?('<span class="badge '+bias.cls+'">'+bias.text+'</span>'):'-';
+        // row 1 main
+        var tr1=document.createElement('tr'); tr1.className='border-t'+(isWeek?' bg-blue-50':'');
+        tr1.innerHTML='<td class="py-2">'+when+'</td>'+
+                      '<td class="py-2">'+h.label+'</td>'+
+                      '<td class="py-2">'+h.input.H+'</td>'+
+                      '<td class="py-2">'+h.input.L+'</td>'+
+                      '<td class="py-2">'+h.input.C+'</td>'+
+                      '<td class="py-2">'+(h.input.O||'-')+'</td>'+
+                      '<td class="py-2">'+fmt2(h.result.P)+'</td>'+
+                      '<td class="py-2">'+fmt2(h.result.BC)+'</td>'+
+                      '<td class="py-2">'+fmt2(h.result.TC)+'</td>'+
+                      '<td class="py-2">'+fmt2(h.result.width)+'</td>'+
+                      '<td class="py-2">'+biasCell+'</td>';
+        body.appendChild(tr1);
+        // row 2 L/H blocks
+        var tr2=document.createElement('tr'); tr2.className=(isWeek?'bg-blue-50':'');
+        var lBlock='L3/L4/L5/L6 → '+fmt2(h.result.L3)+' / '+fmt2(h.result.L4)+' / '+fmt2(h.result.L5)+' / '+fmt2(h.result.L6);
+        var hBlock='H3/H4/H5/H6 → '+fmt2(h.result.H3)+' / '+fmt2(h.result.H4)+' / '+fmt2(h.result.H5)+' / '+fmt2(h.result.H6);
+        tr2.innerHTML='<td class="py-1 text-gray-400"></td><td class="py-1 text-gray-400"></td><td class="py-1 text-gray-400"></td><td class="py-1 text-gray-400"></td><td class="py-1 text-gray-400"></td><td class="py-1 text-gray-400"></td>'+
+                      '<td class="py-1 font-medium" colspan="2">'+lBlock+'</td>'+
+                      '<td class="py-1 font-medium" colspan="2">'+hBlock+'</td>'+
+                      '<td class="py-1"></td>';
+        body.appendChild(tr2);
+      });
+    }
+
+    function addHistory(label,H,L,C){ var d=computeDisplay(H,L,C); if(!d) return; var hist=loadHistory(); hist.push({ id:Date.now(), at:new Date().toISOString(), label:label, input:{H:H,L:L,C:C,O:q('todayOpen').value}, result:d}); saveHistory(hist); renderHistory(); }
+
+    function exportExcel(){ var hist=loadHistory(); if(!hist.length){ alert('ไม่มีข้อมูลประวัติ'); return; }
+      var thead='<tr><th>เวลา</th><th>ช่วง</th><th>High</th><th>Low</th><th>Close</th><th>Open</th><th>P</th><th>BC</th><th>TC</th><th>Width</th><th>Bias</th></tr>';
+      var rows=hist.map(function(h){ var when=new Date(h.at).toLocaleString(); var bias=computeBiasForHist(h); var trStyle=(h.label==='WEEK')?' style="background:#eff6ff"':''; var biasCell='-'; if(bias){ var bStyle='display:inline-block;border-radius:8px;padding:3px 8px;font-weight:600;background:'+bias.bg+';color:'+bias.fg+';'; biasCell='<span style="'+bStyle+'">'+bias.text+'</span>'; }
+        var row1='<tr'+trStyle+'><td>'+when+'</td><td>'+h.label+'</td><td>'+h.input.H+'</td><td>'+h.input.L+'</td><td>'+h.input.C+'</td><td>'+(h.input.O||'-')+'</td><td>'+fmt2(h.result.P)+'</td><td>'+fmt2(h.result.BC)+'</td><td>'+fmt2(h.result.TC)+'</td><td>'+fmt2(h.result.width)+'</td><td>'+biasCell+'</td></tr>';
+        var row2='<tr'+trStyle+'><td></td><td></td><td></td><td></td><td></td><td></td><td colspan="2" style="font-weight:600">L3/L4/L5/L6 → '+fmt2(h.result.L3)+' / '+fmt2(h.result.L4)+' / '+fmt2(h.result.L5)+' / '+fmt2(h.result.L6)+'</td><td colspan="2" style="font-weight:600">H3/H4/H5/H6 → '+fmt2(h.result.H3)+' / '+fmt2(h.result.H4)+' / '+fmt2(h.result.H5)+' / '+fmt2(h.result.H6)+'</td><td></td></tr>';
+        return row1+row2; }).join('');
+      var css='<style>table{border-collapse:collapse;width:100%;font-family:Tahoma,Arial,sans-serif;font-size:12px}th,td{border:1px solid #e5e7eb;padding:6px;text-align:left}</style>';
+      var html='<html><head><meta charset="utf-8" />'+css+'</head><body><table>'+thead+rows+'</table></body></html>';
+      try{ var blob=new Blob(['\ufeff',html],{type:'application/vnd.ms-excel; charset=utf-8'}); if(window.navigator&&window.navigator.msSaveOrOpenBlob){ window.navigator.msSaveOrOpenBlob(blob,'cpr_history.xls'); return;} var url=URL.createObjectURL(blob); var a=q('downloadAnchor'); a.href=url; a.download='cpr_history.xls'; a.target='_self'; a.click(); setTimeout(function(){URL.revokeObjectURL(url);},1000);}catch(e){ var dataUrl='data:application/vnd.ms-excel;charset=utf-8,'+encodeURIComponent('\ufeff'+html); window.open(dataUrl,'_blank'); }
+    }
+
+    window.addEventListener('DOMContentLoaded',function(){
+      q('btnCalc').addEventListener('click',function(){switchView('calc');});
+      q('btnHistory').addEventListener('click',function(){switchView('history');renderHistory();});
+      attachNumericInput(q('weekH'),function(){q('weekL').focus();q('weekL').select&&q('weekL').select();});
+      attachNumericInput(q('weekL'),function(){q('weekC').focus();q('weekC').select&&q('weekC').select();});
+      attachNumericInput(q('weekC'),function(){q('dayH').focus();q('dayH').select&&q('dayH').select();});
+      attachNumericInput(q('dayH'),function(){q('dayL').focus();q('dayL').select&&q('dayL').select();});
+      attachNumericInput(q('dayL'),function(){q('dayC').focus();q('dayC').select&&q('dayC').select();});
+      attachNumericInput(q('dayC'),function(){q('todayOpen').focus();q('todayOpen').select&&q('todayOpen').select();});
+      attachNumericInput(q('todayOpen'));
+      q('saveWeek').addEventListener('click',function(){addHistory('WEEK',q('weekH').value,q('weekL').value,q('weekC').value);});
+      q('saveDay').addEventListener('click',function(){addHistory('DAY',q('dayH').value,q('dayL').value,q('dayC').value);});
+      q('clearHistory').addEventListener('click',function(){localStorage.setItem('cpr_history','[]');renderHistory();});
+      q('exportExcel').addEventListener('click',exportExcel);
+      refresh(); ['weekH','weekL','weekC','dayH','dayL','dayC','todayOpen'].forEach(function(id){q(id).addEventListener('input',refresh);});
+      try{ var tests=[]; var add=function(name,cond){tests.push({name:name,pass:!!cond}); if(!cond) console.error('Test FAILED:',name);}; add('sanitize 1,23 -> 1.23', sanitizeDecimal('1,23')==='1.23'); add('trunc2(1000.126)=1000.12', trunc2(1000.126)===1000.12); var sample=computeDisplay('4381.44','4004.28','4114.12'); add('BC = 4192.86', fmt2(sample.BC)==='4192.86'); add('TC = 4140.36', fmt2(sample.TC)==='4140.36'); add('Width = 5250.00', fmt2(sample.width)==='5250.00'); add('L5 = -3736.96', fmt2(sample.L5)==='-3736.96'); add('H5 = 4491.28', fmt2(sample.H5)==='4491.28'); console.table(tests);}catch(e){console.warn('Self-tests error',e);} 
+    });
+  </script>
+</body>
+</html>
